@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>AI-Powered Timetable Generator</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
+</head>
+<body class="p-4 flex justify-center bg-gray-100 font-sans">
+
+  <div class="bg-white p-8 rounded-xl shadow-lg w-full max-w-5xl">
+    <h1 class="text-3xl font-bold mb-4 text-center text-gray-800">AI-Powered Timetable Generator</h1>
+    <p class="text-gray-600 mb-8 text-center">
+      Manage your data and generate an optimal timetable aligned with NEP 2020.
+    </p>
+    <!-- Tab Buttons -->
+    <div class="flex border-b border-gray-200 mb-8">
+      <button id="tab-generate" class="tab-button active flex-1 py-2 px-4 font-semibold text-sm focus:outline-none transition-colors duration-200 hover:bg-gray-200 rounded-tl-lg">Generate Timetable</button>
+      <button id="tab-student" class="tab-button flex-1 py-2 px-4 font-semibold text-sm focus:outline-none transition-colors duration-200 hover:bg-gray-200">Add Student</button>
+      <button id="tab-faculty" class="tab-button flex-1 py-2 px-4 font-semibold text-sm focus:outline-none transition-colors duration-200 hover:bg-gray-200 rounded-tr-lg">Add Faculty</button>
+    </div>
+
+    <!-- Tab Content Container -->
+    <div id="tab-content">
+      <!-- Generate Timetable Tab -->
+      <div id="tab-generate-content" class="tab-content">
+        <!-- Controls -->
+        <div class="flex flex-col md:flex-row justify-center space-y-4 md:space-y-0 md:space-x-4 mb-8">
+          <button id="generateBtn" class="bg-teal-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-teal-700 transition duration-300 transform hover:scale-105 shadow-md">Generate Optimal Timetable</button>
+          <button id="saveBtn" class="bg-indigo-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-indigo-700 transition duration-300 transform hover:scale-105 shadow-md">Save Timetable</button>
+          <button id="loadBtn" class="bg-gray-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-gray-700 transition duration-300 transform hover:scale-105 shadow-md">Load Saved Timetable</button>
+        </div>
+        <!-- View Selectors -->
+        <div class="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4 mb-8">
+          <div class="flex-1">
+            <label for="view-semester-select" class="block text-gray-700 font-medium mb-1">View by Semester</label>
+            <select id="view-semester-select" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm"></select>
+          </div>
+          <div class="flex-1">
+            <label for="view-faculty-select" class="block text-gray-700 font-medium mb-1">View by Faculty</label>
+            <select id="view-faculty-select" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm"></select>
+          </div>
+          <div class="flex-1">
+            <label for="view-student-select" class="block text-gray-700 font-medium mb-1">View by Student</label>
+            <select id="view-student-select" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm"></select>
+          </div>
+        </div>
+        <div id="loading" class="hidden text-center text-gray-500">
+          <svg class="animate-spin h-5 w-5 mr-3 inline" viewBox="0 0 24 24"></svg>
+          <span>Generating timetable...</span>
+        </div>
+        <div id="message" class="mt-4 text-center text-red-500 font-medium"></div>
+        <div id="timetable-container" class="mt-8 hidden">
+          <h2 id="timetable-title" class="text-2xl font-semibold text-gray-700 mb-4 text-center"></h2>
+          <div id="fitness-score" class="text-center text-lg font-medium text-gray-700 mb-4 hidden"></div>
+          <div class="overflow-x-auto rounded-lg shadow-md">
+            <table class="min-w-full bg-white border-collapse">
+              <thead>
+                <tr id="timetableHeader"></tr>
+              </thead>
+              <tbody id="timetableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <!-- Add Student Tab -->
+      <div id="tab-student-content" class="tab-content hidden">
+        <form id="studentForm" class="space-y-4 max-w-lg mx-auto p-6 bg-gray-50 rounded-lg shadow-inner">
+          <h2 class="text-xl font-bold text-gray-800">Add New Student</h2>
+          <div>
+            <label for="student_name" class="block text-gray-700 font-medium">Student Name</label>
+            <input type="text" id="student_name" name="student_name" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" required>
+          </div>
+          <div>
+            <label for="student-batch-select" class="block text-gray-700 font-medium">Batch</label>
+            <select id="student-batch-select" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" required></select>
+          </div>
+          <div>
+            <label for="student-courses-select" class="block text-gray-700 font-medium">Select Courses</label>
+            <select id="student-courses-select" name="course_choices" multiple class="mt-1 block w-full rounded-md border-gray-300 shadow-sm h-32" required></select>
+          </div>
+          <button type="submit" class="bg-indigo-600 text-white py-2 px-4 rounded-lg font-semibold">Add Student</button>
+          <div id="student-message" class="mt-4 text-center"></div>
+        </form>
+      </div>
+      <!-- Add Faculty Tab -->
+      <div id="tab-faculty-content" class="tab-content hidden">
+        <form id="facultyForm" class="space-y-4 max-w-lg mx-auto p-6 bg-gray-50 rounded-lg shadow-inner">
+          <h2 class="text-xl font-bold text-gray-800">Add New Faculty</h2>
+          <div>
+            <label for="faculty_name" class="block text-gray-700 font-medium">Faculty Name</label>
+            <input type="text" id="faculty_name" name="faculty_name" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" required>
+          </div>
+          <div>
+            <label for="workload_limit_hours" class="block text-gray-700 font-medium">Workload Limit</label>
+            <input type="number" id="workload_limit_hours" name="workload_limit_hours" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" required>
+          </div>
+          <div>
+            <label for="faculty-expertise-select" class="block text-gray-700 font-medium">Expertise</label>
+            <select id="faculty-expertise-select" name="faculty_expertise" multiple class="mt-1 block w-full rounded-md border-gray-300 shadow-sm h-32" required></select>
+          </div>
+          <button type="submit" class="bg-indigo-600 text-white py-2 px-4 rounded-lg font-semibold">Add Faculty</button>
+          <div id="faculty-message" class="mt-4 text-center"></div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Message Modal -->
+  <div id="message-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center hidden">
+    <div id="message-modal-content" class="bg-white p-6 rounded-lg shadow-xl max-w-sm w-full mx-4 text-center">
+      <h3 id="modal-title" class="text-xl font-bold mb-2"></h3>
+      <p id="modal-body" class="mb-4 text-gray-700"></p>
+      <button id="modal-ok-btn" class="bg-indigo-600 text-white py-2 px-4 rounded-lg font-semibold">OK</button>
+    </div>
+  </div>
+  <!-- Saved Timetables Modal (New Unified Design with Select All) -->
+<div id="saved-timetables-modal" class="fixed inset-0 bg-gray-600 bg-opacity-75 flex items-center justify-center hidden z-50">
+  <div id="saved-timetables-content" class="bg-white p-6 rounded-lg shadow-2xl max-w-2xl w-full mx-4">
+    
+    <!-- Modal Header -->
+    <div class="flex justify-between items-center mb-4 pb-3 border-b">
+        <h3 class="text-2xl font-bold text-gray-800">Load or Export Timetables</h3>
+        <button id="close-saved-modal-btn" class="text-gray-500 hover:text-gray-800 text-3xl font-bold">&times;</button>
+    </div>
+
+    <!-- Instructions -->
+    <p class="text-gray-600 mb-4 text-sm">Click on a name to load it. Use the checkboxes to select one or more for export.</p>
+    
+    <!-- NEW: Select All Checkbox -->
+    <div class="flex items-center mb-4 pb-3 border-b">
+        <input type="checkbox" id="select-all-checkbox" class="h-5 w-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
+        <label for="select-all-checkbox" class="ml-3 font-medium text-gray-700">Select All</label>
+    </div>
+
+    <!-- Unified List Container -->
+    <div id="unified-timetables-list" class="space-y-2 max-h-80 overflow-y-auto pr-2">
+        <!-- This list will be populated by app.js -->
+        <p class="text-center text-gray-500">Loading...</p>
+    </div>
+    
+    <!-- Modal Footer with Actions -->
+    <div class="flex justify-end items-center mt-6 pt-4 border-t space-x-4">
+        <button id="exportPdfBtn" class="bg-red-600 text-white py-2 px-6 rounded-lg font-semibold hover:bg-red-700 transition duration-300 shadow-md disabled:bg-gray-400 disabled:cursor-not-allowed" disabled>
+            Export Selected as PDF
+        </button>
+        
+    </div>
+
+  </div>
+</div>
+
+
+
+  <!-- Main application logic -->
+  <script type="module" src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>
