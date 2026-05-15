@@ -32,23 +32,41 @@ Routing                                               Flask + timetable_routes.p
 
 AI-TIMETABLE/
 ├── Backend/
+|
 │   ├── app.py                  # Flask app entry point
+|
 │   ├── db.py                   # Database setup
+|
 │   ├── genetic_algo.py         # Core genetic algorithm logic
+|
 │   ├── models.py               # Database models
+|
 │   ├── seed_data.py            # Sample data seeder
+|
 │   ├── timetable_routes.py     # API routes
+|
 │   ├── timetable.db            # SQLite database (auto-generated)
+|
 │   └── utils.py                # Helper functions
+|
 ├── Frontend/
+|
 │   ├── static/
+|
 │   │   ├── app.js              # Frontend JavaScript
+|
 │   │   └── styles.css          # Stylesheet
+|
 │   └── templates/
+|
 │       └── index.html          # Main HTML page
+|
 ├── venv/                       # Python virtual environment
+|
 ├── requirements.txt            # Python dependencies
+|
 ├── .gitignore
+|
 └── README.md
 
 
@@ -88,4 +106,3 @@ Repeat — Runs for multiple generations until an optimal timetable is found
 This project is open source and available under the MIT License.
 
 
-Problem FixModuleNotFoundErrorRun pip install -r requirements.txtPort 5000 already in useEdit app.py and change port=5000 to port=5001Database errorsDelete timetable.db, re-run db.py and seed_data.pyvenv activation blocked (Windows)Run Set-ExecutionPolicy RemoteSigned -Scope CurrentUser in PowerShell
